@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kunder / العملاء</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <h1>Kunder / العملاء</h1>
+    <a href="/bookings" class="btn btn-secondary">Bokningar</a>
+    <a href="/rooms" class="btn btn-secondary">Rum</a>
+    <hr>
+
+    <table class="table table-bordered">
+        <thead class="table-dark">
+        <tr>
+            <th>Förnamn</th>
+            <th>Efternamn</th>
+            <th>E-post</th>
+            <th>Telefon</th>
+            <th>Åtgärder</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="customer : ${customers}">
+            <td th:text="${customer.firstName}"></td>
+            <td th:text="${customer.lastName}"></td>
+            <td th:text="${customer.email}"></td>
+            <td th:text="${customer.phoneNumber}"></td>
+            <td>
+                <a th:href="@{/customers/edit/{id}(id=${customer.id})}"
+                   class="btn btn-warning btn-sm">Redigera</a>
+                <a th:href="@{/customers/delete/{id}(id=${customer.id})}"
+                   class="btn btn-danger btn-sm"
+                   onclick="return confirm('Är du säker?')">Ta bort</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h3>Lägg till kund / إضافة عميل</h3>
+    <form th:action="@{/customers/save}" th:object="${customerDto}" method="post">
+        <div class="mb-2">
+            <input type="text" th:field="*{firstName}"
+                   class="form-control" placeholder="Förnamn">
+            <span th:if="${#fields.hasErrors('firstName')}"
+                  th:errors="*{firstName}" class="text-danger"></span>
+        </div>
+        <div class="mb-2">
+            <input type="text" th:field="*{lastName}"
+                   class="form-control" placeholder="Efternamn">
+            <span th:if="${#fields.hasErrors('lastName')}"
+                  th:errors="*{lastName}" class="text-danger"></span>
+        </div>
+        <div class="mb-2">
+            <input type="email" th:field="*{email}"
+                   class="form-control" placeholder="E-post">
+            <span th:if="${#fields.hasErrors('email')}"
+                  th:errors="*{email}" class="text-danger"></span>
+        </div>
+        <div class="mb-2">
+            <input type="text" th:field="*{phoneNumber}"
+                   class="form-control" placeholder="Telefon">
+            <span th:if="${#fields.hasErrors('phoneNumber')}"
+                  th:errors="*{phoneNumber}" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-success">Spara</button>
+    </form>
+</div>
+</body>
+</html>
