@@ -57,6 +57,8 @@
                         th:text="${customer.firstName} + ' ' + ${customer.lastName}">
                 </option>
             </select>
+            <span th:if="${#fields.hasErrors('customerId')}"
+                  th:errors="*{customerId}" class="text-danger"></span>
         </div>
         <div class="mb-2">
             <label>Rum / الغرفة</label>
@@ -67,6 +69,8 @@
                         th:text="'Rum ' + ${room.roomNumber} + ' - ' + ${room.roomType}">
                 </option>
             </select>
+            <span th:if="${#fields.hasErrors('roomId')}"
+                  th:errors="*{roomId}" class="text-danger"></span>
         </div>
         <div class="mb-2">
             <label>Startdatum / تاريخ البداية</label>

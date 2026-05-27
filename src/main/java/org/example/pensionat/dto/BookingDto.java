@@ -24,9 +24,11 @@ public class BookingDto {
         return endDate.isAfter(startDate);
     }
 
+    @NotNull(message = "Kund måste väljas")
     private Long customerId;
     private String customerName;
 
+    @NotNull(message = "Rum måste väljas")
     private Long roomId;
     private int roomNumber;
 
