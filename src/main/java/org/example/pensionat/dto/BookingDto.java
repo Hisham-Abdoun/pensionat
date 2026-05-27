@@ -16,6 +16,14 @@ public class BookingDto {
     @Min(value = 1, message = "Minst 1 gäst")
     private int numberOfGuests;
 
+    @AssertTrue(message = "Slutdatum måste vara efter startdatum")
+    public boolean isDateRangeValid() {
+        if (startDate == null || endDate == null) {
+            return true; // @NotNull hanterar detta
+        }
+        return endDate.isAfter(startDate);
+    }
+
     private Long customerId;
     private String customerName;
 

@@ -43,6 +43,8 @@
             <input type="date" th:field="*{endDate}" class="form-control">
             <span th:if="${#fields.hasErrors('endDate')}"
                   th:errors="*{endDate}" class="text-danger"></span>
+            <span th:if="${#fields.hasErrors('dateRangeValid')}"
+                  th:errors="*{dateRangeValid}" class="text-danger"></span>
         </div>
         <div class="mb-2">
             <label>Antal gäster / عدد الضيوف</label>

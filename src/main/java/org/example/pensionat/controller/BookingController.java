@@ -13,6 +13,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 
+import static java.rmi.server.LogStream.log;
+
 @Controller
 @RequestMapping("/bookings")
 public class BookingController {
@@ -49,8 +51,10 @@ public class BookingController {
             model.addAttribute("bookings", bookingService.getAllBookings());
             model.addAttribute("customers", customerService.getAllCustomers());
             model.addAttribute("rooms", roomService.getAllRooms());
+            model.addAttribute("error", "Slutdatum måste vara efter startdatum");
             return "bookings/list";
         }
+
         boolean created = bookingService.createBooking(bookingDto);
         if (created) {
             redirectAttributes.addFlashAttribute("success",
