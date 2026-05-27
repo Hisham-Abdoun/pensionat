@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
-
-import static java.rmi.server.LogStream.log;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/bookings")
@@ -51,7 +50,13 @@ public class BookingController {
             model.addAttribute("bookings", bookingService.getAllBookings());
             model.addAttribute("customers", customerService.getAllCustomers());
             model.addAttribute("rooms", roomService.getAllRooms());
-            model.addAttribute("error", "Slutdatum måste vara efter startdatum");
+            String errorMessage = result.getAllErrors()
+                    .stream()
+                    .map(e -> e.getDefaultMessage())
+                    .filter(m -> m != null && !m.isBlank())
+                    .distinct()
+                    .collect(Collectors.joining("\n"));
+            model.addAttribute("error", errorMessage);
             return "bookings/list";
         }
 
@@ -85,6 +90,13 @@ public class BookingController {
         if (result.hasErrors()) {
             model.addAttribute("customers", customerService.getAllCustomers());
             model.addAttribute("rooms", roomService.getAllRooms());
+            String errorMessage = result.getAllErrors()
+                    .stream()
+                    .map(e -> e.getDefaultMessage())
+                    .filter(m -> m != null && !m.isBlank())
+                    .distinct()
+                    .collect(Collectors.joining("\n"));
+            model.addAttribute("error", errorMessage);
             return "bookings/form";
         }
         boolean updated = bookingService.updateBooking(id, bookingDto);

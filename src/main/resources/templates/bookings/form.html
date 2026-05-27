@@ -8,6 +8,8 @@
 <body>
 <div class="container mt-4">
 
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
     <h1>Redigera bokning / تعديل حجز</h1>
     <a href="/bookings" class="btn btn-secondary">Tillbaka / رجوع</a>
     <hr>
