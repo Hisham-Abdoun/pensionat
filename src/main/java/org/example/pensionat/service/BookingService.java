@@ -88,13 +88,15 @@ public class BookingService {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bokning hittades inte"));
 
+        Customer customer = customerRepository.findById(dto.getCustomerId())
+                .orElseThrow(() -> new RuntimeException("Kund hittades inte"));
+
         Room room = roomRepository.findById(dto.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Rum hittades inte"));
 
-        // تحقق لا يوجد تعارض (ما عدا الحجز الحالي)
-        List<Booking> conflicts = bookingRepository
-                .findConflictingBookings(room, dto.getStartDate(), dto.getEndDate());
-        conflicts.remove(booking);
+        // Krockkontroll: exkludera denna bokning (samma id), inte samma Java-instans
+        List<Booking> conflicts = bookingRepository.findConflictingBookingsExcluding(
+                room, dto.getStartDate(), dto.getEndDate(), booking.getId());
         if (!conflicts.isEmpty()) {
             return false;
         }
@@ -102,6 +104,7 @@ public class BookingService {
         booking.setStartDate(dto.getStartDate());
         booking.setEndDate(dto.getEndDate());
         booking.setNumberOfGuests(dto.getNumberOfGuests());
+        booking.setCustomer(customer);
         booking.setRoom(room);
 
         bookingRepository.save(booking);

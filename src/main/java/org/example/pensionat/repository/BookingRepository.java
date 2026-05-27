@@ -23,4 +23,16 @@ public interface BookingRepository
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    /** Samma som ovan men ignorerar en befintlig bokning (vid uppdatering). */
+    @Query("SELECT b FROM Booking b WHERE b.room = :room " +
+            "AND b.startDate < :endDate " +
+            "AND b.endDate > :startDate " +
+            "AND b.id <> :excludeBookingId")
+    List<Booking> findConflictingBookingsExcluding(
+            @Param("room") Room room,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("excludeBookingId") Long excludeBookingId
+    );
 }
