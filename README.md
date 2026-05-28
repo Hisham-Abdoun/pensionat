@@ -52,7 +52,7 @@ N?r applikationen ?r ig?ng:
 
 - `GET /bookings` – lista bokningar + formul?r f?r ny bokning
 - `GET /bookings/edit/{id}` – redigera bokning
-- `GET /bookings/delete/{id}` – avboka
+- `POST /bookings/delete/{id}` – avboka
 - `GET /bookings/search` – s?k efter lediga rum
 - `GET /customers` – lista / skapa kunder
 - `GET /customers/edit/{id}` – redigera kund

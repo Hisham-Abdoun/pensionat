@@ -66,7 +66,7 @@ public class CustomerController {
     }
 
     // حذف عميل
-    @GetMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     public String deleteCustomer(@PathVariable Long id,
                                  RedirectAttributes redirectAttributes) {
         boolean deleted = customerService.deleteCustomer(id);

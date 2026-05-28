@@ -111,7 +111,7 @@ public class BookingController {
     }
 
     // إلغاء حجز
-    @GetMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     public String deleteBooking(@PathVariable Long id,
                                 RedirectAttributes redirectAttributes) {
         bookingService.deleteBooking(id);

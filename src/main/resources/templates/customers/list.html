@@ -35,9 +35,11 @@
             <td>
                 <a th:href="@{/customers/edit/{id}(id=${customer.id})}"
                    class="btn btn-warning btn-sm">Redigera</a>
-                <a th:href="@{/customers/delete/{id}(id=${customer.id})}"
-                   class="btn btn-danger btn-sm"
-                   onclick="return confirm('Är du säker?')">Ta bort</a>
+                <form th:action="@{/customers/delete/{id}(id=${customer.id})}"
+                      method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Är du säker?')">Ta bort</button>
+                </form>
             </td>
         </tr>
         </tbody>
