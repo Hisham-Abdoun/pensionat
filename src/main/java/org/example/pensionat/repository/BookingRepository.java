@@ -14,7 +14,6 @@ import java.util.List;
 public interface BookingRepository
         extends JpaRepository<Booking, Long> {
 
-    // البحث عن حجوزات تتعارض مع تاريخ معين
     @Query("SELECT b FROM Booking b WHERE b.room = :room " +
             "AND b.startDate < :endDate " +
             "AND b.endDate > :startDate")

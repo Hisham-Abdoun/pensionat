@@ -19,7 +19,7 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
-    // عرض كل العملاء
+    // Visa alla kunder
     @GetMapping
     public String listCustomers(Model model) {
         model.addAttribute("customers", customerService.getAllCustomers());
@@ -27,7 +27,7 @@ public class CustomerController {
         return "customers/list";
     }
 
-    // حفظ عميل جديد
+    // Spara ny kund
     @PostMapping("/save")
     public String saveCustomer(@Valid @ModelAttribute CustomerDto customerDto,
                                BindingResult result,
@@ -39,18 +39,18 @@ public class CustomerController {
         }
         customerService.saveCustomer(customerDto);
         redirectAttributes.addFlashAttribute("success",
-                "Kunden sparades! / تم حفظ العميل!");
+                "Kunden sparades!");
         return "redirect:/customers";
     }
 
-    // عرض فورم التعديل
+    // Visa redigeringsformulär
     @GetMapping("/edit/{id}")
     public String editCustomer(@PathVariable Long id, Model model) {
         model.addAttribute("customerDto", customerService.getCustomerById(id));
         return "customers/form";
     }
 
-    // تعديل عميل
+    // Redigera kund
     @PostMapping("/update/{id}")
     public String updateCustomer(@PathVariable Long id,
                                  @Valid @ModelAttribute CustomerDto customerDto,
@@ -61,21 +61,21 @@ public class CustomerController {
         }
         customerService.updateCustomer(id, customerDto);
         redirectAttributes.addFlashAttribute("success",
-                "Kunden uppdaterades! / تم تعديل العميل!");
+                "Kunden uppdaterades!");
         return "redirect:/customers";
     }
 
-    // حذف عميل
-    @PostMapping("/delete/{id}")
+    // Ta bort kund
+    @GetMapping("/delete/{id}")
     public String deleteCustomer(@PathVariable Long id,
                                  RedirectAttributes redirectAttributes) {
         boolean deleted = customerService.deleteCustomer(id);
         if (deleted) {
             redirectAttributes.addFlashAttribute("success",
-                    "Kunden togs bort! / تم حذف العميل!");
+                    "Kunden togs bort!");
         } else {
             redirectAttributes.addFlashAttribute("error",
-                    "Kan inte ta bort kund med bokningar! / لا يمكن حذف عميل لديه حجوزات!");
+                    "Kan inte ta bort kund med bokningar!");
         }
         return "redirect:/customers";
     }

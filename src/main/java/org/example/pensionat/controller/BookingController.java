@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/bookings")
@@ -30,7 +29,7 @@ public class BookingController {
         this.roomService = roomService;
     }
 
-    // عرض كل الحجوزات
+    // Visa alla bokningar
     @GetMapping
     public String listBookings(Model model) {
         model.addAttribute("bookings", bookingService.getAllBookings());
@@ -40,7 +39,7 @@ public class BookingController {
         return "bookings/list";
     }
 
-    // إنشاء حجز جديد
+    // Skapa ny bokning
     @PostMapping("/save")
     public String saveBooking(@Valid @ModelAttribute BookingDto bookingDto,
                               BindingResult result,
@@ -50,28 +49,20 @@ public class BookingController {
             model.addAttribute("bookings", bookingService.getAllBookings());
             model.addAttribute("customers", customerService.getAllCustomers());
             model.addAttribute("rooms", roomService.getAllRooms());
-            String errorMessage = result.getAllErrors()
-                    .stream()
-                    .map(e -> e.getDefaultMessage())
-                    .filter(m -> m != null && !m.isBlank())
-                    .distinct()
-                    .collect(Collectors.joining("\n"));
-            model.addAttribute("error", errorMessage);
             return "bookings/list";
         }
-
         boolean created = bookingService.createBooking(bookingDto);
         if (created) {
             redirectAttributes.addFlashAttribute("success",
-                    "Bokning skapad! / تم إنشاء الحجز!");
+                    "Bokning skapad!");
         } else {
             redirectAttributes.addFlashAttribute("error",
-                    "Rummet är redan bokat! / الغرفة محجوزة في هذا التاريخ!");
+                    "Rummet är redan bokat!");
         }
         return "redirect:/bookings";
     }
 
-    // عرض فورم التعديل
+    // Visa redigeringsformulär
     @GetMapping("/edit/{id}")
     public String editBooking(@PathVariable Long id, Model model) {
         model.addAttribute("bookingDto", bookingService.getBookingById(id));
@@ -80,7 +71,7 @@ public class BookingController {
         return "bookings/form";
     }
 
-    // تعديل حجز
+    // Redigera bokning
     @PostMapping("/update/{id}")
     public String updateBooking(@PathVariable Long id,
                                 @Valid @ModelAttribute BookingDto bookingDto,
@@ -90,37 +81,30 @@ public class BookingController {
         if (result.hasErrors()) {
             model.addAttribute("customers", customerService.getAllCustomers());
             model.addAttribute("rooms", roomService.getAllRooms());
-            String errorMessage = result.getAllErrors()
-                    .stream()
-                    .map(e -> e.getDefaultMessage())
-                    .filter(m -> m != null && !m.isBlank())
-                    .distinct()
-                    .collect(Collectors.joining("\n"));
-            model.addAttribute("error", errorMessage);
             return "bookings/form";
         }
         boolean updated = bookingService.updateBooking(id, bookingDto);
         if (updated) {
             redirectAttributes.addFlashAttribute("success",
-                    "Bokning uppdaterad! / تم تعديل الحجز!");
+                    "Bokning uppdaterad!");
         } else {
             redirectAttributes.addFlashAttribute("error",
-                    "Rummet är redan bokat! / الغرفة محجوزة في هذا التاريخ!");
+                    "Rummet är redan bokat!");
         }
         return "redirect:/bookings";
     }
 
-    // إلغاء حجز
-    @PostMapping("/delete/{id}")
+    // Avboka bokning
+    @GetMapping("/delete/{id}")
     public String deleteBooking(@PathVariable Long id,
                                 RedirectAttributes redirectAttributes) {
         bookingService.deleteBooking(id);
         redirectAttributes.addFlashAttribute("success",
-                "Bokning avbokad! / تم إلغاء الحجز!");
+                "Bokning avbokad!");
         return "redirect:/bookings";
     }
 
-    // بحث عن غرف متاحة ⭐ VG
+    // Sök tillgängliga rum ⭐ VG
     @GetMapping("/search")
     public String searchRooms(
             @RequestParam(required = false) LocalDate startDate,

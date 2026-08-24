@@ -27,7 +27,7 @@ public class BookingService {
         this.roomRepository = roomRepository;
     }
 
-    // تحويل Entity → DTO
+    // Konvertera Entity → DTO
     private BookingDto toDto(Booking booking) {
         BookingDto dto = new BookingDto();
         dto.setId(booking.getId());
@@ -42,7 +42,7 @@ public class BookingService {
         return dto;
     }
 
-    // جلب كل الحجوزات
+    // Hämta alla bokningar
     public List<BookingDto> getAllBookings() {
         return bookingRepository.findAll()
                 .stream()
@@ -50,23 +50,23 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
-    // جلب حجز بالـ ID
+    // Hämta bokning via ID
     public BookingDto getBookingById(Long id) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bokning hittades inte"));
         return toDto(booking);
     }
 
-    // إنشاء حجز جديد
+    // Skapa ny bokning
     public boolean createBooking(BookingDto dto) {
         Room room = roomRepository.findById(dto.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Rum hittades inte"));
 
-        // تحقق لا يوجد حجز متعارض
+        // Kontrollera att det inte finns en motstridig bokning
         List<Booking> conflicts = bookingRepository
                 .findConflictingBookings(room, dto.getStartDate(), dto.getEndDate());
         if (!conflicts.isEmpty()) {
-            return false; // الغرفة محجوزة
+            return false; // Rummet är bokat
         }
 
         Customer customer = customerRepository.findById(dto.getCustomerId())
@@ -80,23 +80,21 @@ public class BookingService {
         booking.setRoom(room);
 
         bookingRepository.save(booking);
-        return true; // تم الحجز
+        return true; // Bokningen genomförd
     }
 
-    // تعديل حجز
+    // Redigera bokning
     public boolean updateBooking(Long id, BookingDto dto) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bokning hittades inte"));
 
-        Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Kund hittades inte"));
-
         Room room = roomRepository.findById(dto.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Rum hittades inte"));
 
-        // Krockkontroll: exkludera denna bokning (samma id), inte samma Java-instans
-        List<Booking> conflicts = bookingRepository.findConflictingBookingsExcluding(
-                room, dto.getStartDate(), dto.getEndDate(), booking.getId());
+        // Kontrollera att det inte finns en konflikt (förutom den aktuella bokningen)
+        List<Booking> conflicts = bookingRepository
+                .findConflictingBookings(room, dto.getStartDate(), dto.getEndDate());
+        conflicts.remove(booking);
         if (!conflicts.isEmpty()) {
             return false;
         }
@@ -104,14 +102,13 @@ public class BookingService {
         booking.setStartDate(dto.getStartDate());
         booking.setEndDate(dto.getEndDate());
         booking.setNumberOfGuests(dto.getNumberOfGuests());
-        booking.setCustomer(customer);
         booking.setRoom(room);
 
         bookingRepository.save(booking);
         return true;
     }
 
-    // إلغاء حجز
+    // Avboka bokning
     public void deleteBooking(Long id) {
         bookingRepository.deleteById(id);
     }

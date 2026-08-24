@@ -2,44 +2,44 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Redigera kund / تعديل عميل</title>
+    <title>Redigera kund</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
 <div class="container mt-4">
 
-    <h1>Redigera kund / تعديل عميل</h1>
-    <a href="/customers" class="btn btn-secondary">Tillbaka / رجوع</a>
+    <h1>Redigera kund</h1>
+    <a href="/customers" class="btn btn-secondary">Tillbaka</a>
     <hr>
 
     <form th:action="@{/customers/update/{id}(id=${customerDto.id})}"
           th:object="${customerDto}" method="post">
         <div class="mb-2">
-            <label>Förnamn / الاسم الأول</label>
+            <label>Förnamn</label>
             <input type="text" th:field="*{firstName}" class="form-control">
             <span th:if="${#fields.hasErrors('firstName')}"
                   th:errors="*{firstName}" class="text-danger"></span>
         </div>
         <div class="mb-2">
-            <label>Efternamn / اسم العائلة</label>
+            <label>Efternamn</label>
             <input type="text" th:field="*{lastName}" class="form-control">
             <span th:if="${#fields.hasErrors('lastName')}"
                   th:errors="*{lastName}" class="text-danger"></span>
         </div>
         <div class="mb-2">
-            <label>E-post / البريد الإلكتروني</label>
+            <label>E-post</label>
             <input type="email" th:field="*{email}" class="form-control">
             <span th:if="${#fields.hasErrors('email')}"
                   th:errors="*{email}" class="text-danger"></span>
         </div>
         <div class="mb-2">
-            <label>Telefon / رقم الهاتف</label>
+            <label>Telefon</label>
             <input type="text" th:field="*{phoneNumber}" class="form-control">
             <span th:if="${#fields.hasErrors('phoneNumber')}"
                   th:errors="*{phoneNumber}" class="text-danger"></span>
         </div>
-        <button type="submit" class="btn btn-success">Spara / حفظ</button>
-        <a href="/customers" class="btn btn-secondary">Avbryt / إلغاء</a>
+        <button type="submit" class="btn btn-success">Spara</button>
+        <a href="/customers" class="btn btn-secondary">Avbryt</a>
     </form>
 </div>
 </body>

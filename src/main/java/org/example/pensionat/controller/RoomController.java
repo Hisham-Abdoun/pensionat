@@ -20,7 +20,6 @@ public class RoomController {
         this.roomService = roomService;
     }
 
-    // عرض كل الغرف
     @GetMapping
     public String listRooms(Model model) {
         model.addAttribute("rooms", roomService.getAllRooms());
@@ -29,7 +28,6 @@ public class RoomController {
         return "rooms/list";
     }
 
-    // حفظ غرفة جديدة
     @PostMapping("/save")
     public String saveRoom(@Valid @ModelAttribute RoomDto roomDto,
                            BindingResult result,
@@ -41,8 +39,7 @@ public class RoomController {
             return "rooms/list";
         }
         roomService.saveRoom(roomDto);
-        redirectAttributes.addFlashAttribute("success",
-                "Rummet sparades! / تم حفظ الغرفة!");
+        redirectAttributes.addFlashAttribute("success", "Rummet sparades!");
         return "redirect:/rooms";
     }
 }

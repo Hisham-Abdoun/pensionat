@@ -8,8 +8,8 @@ import org.example.pensionat.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class RoomService {
@@ -23,7 +23,7 @@ public class RoomService {
         this.bookingRepository = bookingRepository;
     }
 
-    // تحويل Entity → DTO
+
     private RoomDto toDto(Room room) {
         RoomDto dto = new RoomDto();
         dto.setId(room.getId());
@@ -34,7 +34,7 @@ public class RoomService {
         return dto;
     }
 
-    // تحويل DTO → Entity
+
     private Room toEntity(RoomDto dto) {
         Room room = new Room();
         room.setRoomNumber(dto.getRoomNumber());
@@ -44,54 +44,63 @@ public class RoomService {
         return room;
     }
 
-    // جلب كل الغرف
+
     public List<RoomDto> getAllRooms() {
-        return roomRepository.findAll()
-                .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+        List<RoomDto> list = new ArrayList<>();
+
+        for (Room r : roomRepository.findAll()) {
+            list.add(toDto(r));
+        }
+
+        return list;
     }
 
-    // جلب غرفة بالـ ID
+
     public RoomDto getRoomById(Long id) {
         Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Rum hittades inte"));
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+
         return toDto(room);
     }
 
-    // حفظ غرفة جديدة
+
     public void saveRoom(RoomDto dto) {
         roomRepository.save(toEntity(dto));
     }
 
-    // البحث عن غرف متاحة ⭐ VG
-    public List<RoomDto> getAvailableRooms(
-            LocalDate startDate,
-            LocalDate endDate,
-            int numberOfGuests) {
 
-        return roomRepository.findAll()
-                .stream()
-                .filter(room -> {
-                    // تحقق عدد الضيوف
-                    int maxGuests = getMaxGuests(room);
-                    if (maxGuests < numberOfGuests) return false;
+    public List<RoomDto> getAvailableRooms(LocalDate startDate,
+                                           LocalDate endDate,
+                                           int numberOfGuests) {
 
-                    // تحقق لا يوجد حجوزات متعارضة
-                    List conflicts = bookingRepository
-                            .findConflictingBookings(room, startDate, endDate);
-                    return conflicts.isEmpty();
-                })
-                .map(this::toDto)
-                .collect(Collectors.toList());
+        List<RoomDto> available = new ArrayList<>();
+
+        List<Room> rooms = roomRepository.findAll();
+
+        for (Room room : rooms) {
+
+            int maxGuests = getMaxGuests(room);
+
+            if (maxGuests < numberOfGuests) {
+                continue;
+            }
+
+            List conflicts = bookingRepository.findConflictingBookings(room, startDate, endDate);
+
+            if (conflicts.isEmpty()) {
+                available.add(toDto(room));
+            }
+        }
+
+        return available;
     }
 
-    // حساب أقصى عدد ضيوف للغرفة
+
     private int getMaxGuests(Room room) {
         if (room.getRoomType() == RoomType.SINGLE) {
             return 1;
+        } else {
+            return 2 + room.getExtraBeds();
         }
-        // DOUBLE: 2 + عدد الأسرّة الإضافية
-        return 2 + room.getExtraBeds();
     }
 }
