@@ -1,120 +1,114 @@
 package org.example.pensionat.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.example.pensionat.dto.BookingDto;
+import org.example.pensionat.dto.RoomDto;
 import org.example.pensionat.service.BookingService;
-import org.example.pensionat.service.CustomerService;
 import org.example.pensionat.service.RoomService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.List;
 
-@Controller
-@RequestMapping("/bookings")
+@RestController
+@RequestMapping("/api/bookings")
+@Tag(name = "Bookings", description = "API för bokningshantering")
 public class BookingController {
 
     private final BookingService bookingService;
-    private final CustomerService customerService;
     private final RoomService roomService;
 
     public BookingController(BookingService bookingService,
-                             CustomerService customerService,
                              RoomService roomService) {
         this.bookingService = bookingService;
-        this.customerService = customerService;
         this.roomService = roomService;
     }
 
-    // Visa alla bokningar
     @GetMapping
-    public String listBookings(Model model) {
-        model.addAttribute("bookings", bookingService.getAllBookings());
-        model.addAttribute("bookingDto", new BookingDto());
-        model.addAttribute("customers", customerService.getAllCustomers());
-        model.addAttribute("rooms", roomService.getAllRooms());
-        return "bookings/list";
+    @Operation(summary = "Hämta alla bokningar")
+    @ApiResponse(responseCode = "200", description = "Lista med alla bokningar")
+    public ResponseEntity<List<BookingDto>> getAllBookings() {
+        return ResponseEntity.ok(bookingService.getAllBookings());
     }
 
-    // Skapa ny bokning
-    @PostMapping("/save")
-    public String saveBooking(@Valid @ModelAttribute BookingDto bookingDto,
-                              BindingResult result,
-                              RedirectAttributes redirectAttributes,
-                              Model model) {
+    @GetMapping("/{id}")
+    @Operation(summary = "Hämta bokning via ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Bokning hittad"),
+            @ApiResponse(responseCode = "404", description = "Bokning hittades inte")
+    })
+    public ResponseEntity<BookingDto> getBookingById(
+            @Parameter(description = "Boknings-ID") @PathVariable Long id) {
+        return ResponseEntity.ok(bookingService.getBookingById(id));
+    }
+
+    @PostMapping
+    @Operation(summary = "Skapa ny bokning")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Bokning skapad"),
+            @ApiResponse(responseCode = "400", description = "Valideringsfel eller rum redan bokat"),
+            @ApiResponse(responseCode = "409", description = "Rummet är redan bokat")
+    })
+    public ResponseEntity<?> createBooking(@Valid @RequestBody BookingDto bookingDto,
+                                            BindingResult result) {
         if (result.hasErrors()) {
-            model.addAttribute("bookings", bookingService.getAllBookings());
-            model.addAttribute("customers", customerService.getAllCustomers());
-            model.addAttribute("rooms", roomService.getAllRooms());
-            return "bookings/list";
+            return ResponseEntity.badRequest().body(result.getAllErrors());
         }
         boolean created = bookingService.createBooking(bookingDto);
         if (created) {
-            redirectAttributes.addFlashAttribute("success",
-                    "Bokning skapad!");
+            return ResponseEntity.status(HttpStatus.CREATED).body("Bokning skapad!");
         } else {
-            redirectAttributes.addFlashAttribute("error",
-                    "Rummet är redan bokat!");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Rummet är redan bokat!");
         }
-        return "redirect:/bookings";
     }
 
-    // Visa redigeringsformulär
-    @GetMapping("/edit/{id}")
-    public String editBooking(@PathVariable Long id, Model model) {
-        model.addAttribute("bookingDto", bookingService.getBookingById(id));
-        model.addAttribute("customers", customerService.getAllCustomers());
-        model.addAttribute("rooms", roomService.getAllRooms());
-        return "bookings/form";
-    }
-
-    // Redigera bokning
-    @PostMapping("/update/{id}")
-    public String updateBooking(@PathVariable Long id,
-                                @Valid @ModelAttribute BookingDto bookingDto,
-                                BindingResult result,
-                                RedirectAttributes redirectAttributes,
-                                Model model) {
+    @PutMapping("/{id}")
+    @Operation(summary = "Uppdatera bokning")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Bokning uppdaterad"),
+            @ApiResponse(responseCode = "400", description = "Valideringsfel"),
+            @ApiResponse(responseCode = "404", description = "Bokning hittades inte"),
+            @ApiResponse(responseCode = "409", description = "Rummet är redan bokat")
+    })
+    public ResponseEntity<?> updateBooking(
+            @Parameter(description = "Boknings-ID") @PathVariable Long id,
+            @Valid @RequestBody BookingDto bookingDto,
+            BindingResult result) {
         if (result.hasErrors()) {
-            model.addAttribute("customers", customerService.getAllCustomers());
-            model.addAttribute("rooms", roomService.getAllRooms());
-            return "bookings/form";
+            return ResponseEntity.badRequest().body(result.getAllErrors());
         }
         boolean updated = bookingService.updateBooking(id, bookingDto);
         if (updated) {
-            redirectAttributes.addFlashAttribute("success",
-                    "Bokning uppdaterad!");
+            return ResponseEntity.ok("Bokning uppdaterad!");
         } else {
-            redirectAttributes.addFlashAttribute("error",
-                    "Rummet är redan bokat!");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Rummet är redan bokat!");
         }
-        return "redirect:/bookings";
     }
 
-    // Avboka bokning
-    @GetMapping("/delete/{id}")
-    public String deleteBooking(@PathVariable Long id,
-                                RedirectAttributes redirectAttributes) {
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Avboka bokning")
+    @ApiResponse(responseCode = "200", description = "Bokning avbokad")
+    public ResponseEntity<String> deleteBooking(
+            @Parameter(description = "Boknings-ID") @PathVariable Long id) {
         bookingService.deleteBooking(id);
-        redirectAttributes.addFlashAttribute("success",
-                "Bokning avbokad!");
-        return "redirect:/bookings";
+        return ResponseEntity.ok("Bokning avbokad!");
     }
 
-    // Sök tillgängliga rum ⭐ VG
     @GetMapping("/search")
-    public String searchRooms(
-            @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate,
-            @RequestParam(required = false) Integer numberOfGuests,
-            Model model) {
-        if (startDate != null && endDate != null && numberOfGuests != null) {
-            model.addAttribute("availableRooms",
-                    roomService.getAvailableRooms(startDate, endDate, numberOfGuests));
-        }
-        return "bookings/search";
+    @Operation(summary = "Sök tillgängliga rum")
+    @ApiResponse(responseCode = "200", description = "Lista med tillgängliga rum")
+    public ResponseEntity<List<RoomDto>> searchAvailableRooms(
+            @Parameter(description = "Startdatum") @RequestParam LocalDate startDate,
+            @Parameter(description = "Slutdatum") @RequestParam LocalDate endDate,
+            @Parameter(description = "Antal gäster") @RequestParam Integer numberOfGuests) {
+        return ResponseEntity.ok(roomService.getAvailableRooms(startDate, endDate, numberOfGuests));
     }
 }

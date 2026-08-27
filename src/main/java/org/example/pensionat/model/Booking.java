@@ -21,11 +21,11 @@ public class Booking {
     @Min(value = 1, message = "Minst 1 gäst")
     private int numberOfGuests;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "room_id")
     private Room room;
 

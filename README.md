@@ -1,110 +1,228 @@
-## Pensionat � enkelt bokningssystem
+## Booking Service – REST API Mikroservice
 
-Ett litet **Spring Boot 3 / Java 17**-projekt f?r att hantera bokningar p? ett pensionat.  
-Systemet anv?nder **H2 in?memory**-databas, **JPA**, **Thymeleaf** och **Bootstrap**.
+En **Spring Boot 3 / Java 17**-mikroservice som tillhandahåller ett REST API för bokningshantering.  
+Systemet använder **MySQL**-databas, **JPA**, och **SpringDoc OpenAPI** för code-first API-dokumentation.
+
+Denna service är designad för att användas av andra mikrotjänster (t.ex. customer-service) via REST API.
 
 ### Funktioner
 
-- **Kunder**
-  - Skapa, lista, uppdatera och ta bort kunder
-  - Kan inte radera kund som har bokningar
-- **Rum**
-  - Skapa och lista rum (`SINGLE` / `DOUBLE`, extras?ngar, pris per natt)
-  - En metod f?r att s?ka lediga rum givet datum och antal g?ster
 - **Bokningar**
-  - Skapa, lista, uppdatera och avboka bokningar
-  - Kontroll mot **dubbelbokning** av samma rum (datum?verlappar inte)
-  - Validering att **slutdatum ?r efter startdatum**
-  - Validering av obligatoriska f?lt och minsta antal g?ster
+  - Skapa, lista, uppdatera och avboka bokningar via REST API
+  - Kontroll mot **dubbelbokning** av samma rum (datumöverlappar inte)
+  - Validering att **slutdatum är efter startdatum**
+  - Validering av obligatoriska fält och minsta antal gäster
+  - Sök efter tillgängliga rum givet datum och antal gäster
+- **Rum**
+  - Hämta alla rum via REST API
+  - Hämta specifikt rum via ID
+  - Skapa nya rum
+- **Kunder**
+  - Hämta alla kunder via REST API
+  - Hämta specifik kund via ID
+  - Skapa, uppdatera och ta bort kunder
+  - Kan inte radera kund som har bokningar
 - **Startdata (Code First)**
-  - En `CommandLineRunner`-bean (`DataInitializer`) skapar n?gra kunder, rum och bokningar vid uppstart
+  - En `CommandLineRunner`-bean (`DataInitializer`) skapar några kunder, rum och bokningar vid uppstart
+- **OpenAPI-dokumentation**
+  - Automatiskt genererad API-dokumentation via Swagger UI
 
 ### Teknik
 
-- **Spr?k:** Java 17  
+- **Språk:** Java 17  
 - **Bygg:** Maven  
 - **Ramverk:** Spring Boot 3.5  
-- **Databas:** H2 in?memory (ingen extern databas beh?vs)  
-- **Vy:** Thymeleaf + Bootstrap  
+- **Databas:** MySQL  
+- **API-dokumentation:** SpringDoc OpenAPI (Swagger UI)
 
-### Komma ig?ng
+### Komma igång
+
+#### Alternativ 1: Lokal utveckling
 
 Krav:
 
 - Java 17 installerat
-- Maven (om du inte anv?nder IDE:ns inbyggda st?d)
+- MySQL installerat och körs
+- Maven (om du inte använder IDE:ns inbyggda stöd)
 
-Klona projektet och k?r:
+**Databas-setup:**
+
+Skapa en MySQL-databas med namnet `booking_service`:
+
+```sql
+CREATE DATABASE booking_service;
+```
+
+Skapa `application-local.properties` i `src/main/resources/` med dina MySQL-uppgifter:
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/booking_service
+spring.datasource.username=root
+spring.datasource.password=ditt_lösenord
+```
+
+**Starta applikationen:**
 
 ```bash
 mvn spring-boot:run
 ```
 
-eller i en IDE (t.ex. IntelliJ / VS Code / Eclipse):
+När applikationen är igång:
 
-- K?r `org.example.pensionat.PensionatApplication` som en Spring Boot?applikation.
+- **Swagger UI:** `http://localhost:8080/swagger-ui.html` – Interaktiv API-dokumentation
+- **OpenAPI JSON:** `http://localhost:8080/v3/api-docs` – API-specifikation i JSON-format
 
-N?r applikationen ?r ig?ng:
+#### Alternativ 2: Docker Desktop
 
-- G? till `http://localhost:8080/bookings` i webbl?saren.
+Krav:
 
-### Viktiga URL:er
+- Docker Desktop installerat
 
-- `GET /bookings` � lista bokningar + formul?r f?r ny bokning
-- `GET /bookings/edit/{id}` � redigera bokning
-- `POST /bookings/delete/{id}` � avboka
-- `GET /bookings/search` � s?k efter lediga rum
-- `GET /customers` � lista / skapa kunder
-- `GET /customers/edit/{id}` � redigera kund
-- `GET /rooms` � lista / skapa rum
+**Starta med docker-compose:**
+
+```bash
+docker-compose up --build
+```
+
+Detta startar både MySQL-databasen och booking-service i separata containers.
+
+När containers är igång:
+
+- **Swagger UI:** `http://localhost:8080/swagger-ui.html`
+- **API:** `http://localhost:8080/api/bookings`
+
+**Stoppa containers:**
+
+```bash
+docker-compose down
+```
+
+#### Alternativ 3: Kubernetes
+
+Krav:
+
+- Kubernetes kluster, till exempel Docker Desktop Kubernetes eller ett externt kluster
+- kubectl konfigurerat
+
+**Bygg Docker image:**
+
+```bash
+docker build -t booking-service:latest .
+```
+
+**Deploy till Kubernetes:**
+
+```bash
+# För Docker Desktop Kubernetes
+kubectl config use-context docker-desktop
+
+# Skapar secret, MySQL och booking-service
+kubectl apply -f k8s/
+```
+
+**Kontrollera status:**
+
+```bash
+kubectl get pods
+kubectl get services
+```
+
+**Accessa service:**
+
+För lokal utveckling med Docker Desktop Kubernetes:
+
+```bash
+kubectl port-forward service/booking-service 8081:8081
+```
+
+För riktigt kluster med LoadBalancer, använd den externa IP-adressen som tilldelas.
+
+### REST API Endpoints
+
+#### Bokningar (`/api/bookings`)
+
+- `GET /api/bookings` – Hämta alla bokningar
+- `GET /api/bookings/{id}` – Hämta bokning via ID
+- `POST /api/bookings` – Skapa ny bokning
+- `PUT /api/bookings/{id}` – Uppdatera bokning
+- `DELETE /api/bookings/{id}` – Avboka bokning
+- `GET /api/bookings/search?startDate=&endDate=&numberOfGuests=` – Sök tillgängliga rum
+
+#### Kunder (`/api/customers`)
+
+- `GET /api/customers` – Hämta alla kunder
+- `GET /api/customers/{id}` – Hämta kund via ID
+- `POST /api/customers` – Skapa ny kund
+- `PUT /api/customers/{id}` – Uppdatera kund
+- `DELETE /api/customers/{id}` – Ta bort kund
+
+#### Rum (`/api/rooms`)
+
+- `GET /api/rooms` – Hämta alla rum
+- `GET /api/rooms/{id}` – Hämta rum via ID
+- `POST /api/rooms` – Skapa nytt rum
 
 ### Startdata (DataInitializer)
 
-Vid uppstart k?rs `DataInitializer` (i paketet `config`) som:
+Vid uppstart körs `DataInitializer` (i paketet `config`) som:
 
-- Skapar tre exempel?kunder
-- Skapar fyra rum (single/double, med/utan extras?ng)
+- Skapar tre exempelkunder
+- Skapar fyra rum (single/double, med/utan extrasäng)
 - Skapar tre bokningar med olika datum
 
-Detta g?r att du direkt ser data i gr?nssnittet utan att beh?va l?gga in n?got manuellt.
+Detta gör att du direkt har data att arbeta med via API:et.
 
 ### Validering
 
-Exempel p? valideringsregler:
+Exempel på valideringsregler:
 
 - `BookingDto`
-  - `startDate` / `endDate` ?r obligatoriska
+  - `startDate` / `endDate` är obligatoriska
   - `numberOfGuests >= 1`
-  - Metoden `isDateRangeValid()` (annoterad med `@AssertTrue`) kr?ver att **slutdatum ?r efter startdatum**  
-    � felmeddelandet visas b?de vid ny bokning och vid ?ndring.
+  - Metoden `isDateRangeValid()` (annoterad med `@AssertTrue`) kräver att **slutdatum är efter startdatum**
 - Entiteterna (`Customer`, `Room`, `Booking`) har motsvarande valideringsannoteringar.
 
-Valideringsfel visas:
+Valideringsfel returneras som HTTP 400 med detaljerad felinformation i JSON-format.
 
-- Som r?da texter under respektive f?lt i formul?ren
-- Som en r?d alert ?verst p? sidan f?r vissa fel (t.ex. dubbelbokning av rum)
+### HTTP Status Codes
+
+- `200 OK` – Lyckat GET, PUT, DELETE
+- `201 Created` – Lyckat POST
+- `400 Bad Request` – Valideringsfel
+- `404 Not Found` – Resurs hittades inte
+- `409 Conflict` – T.ex. rum redan bokat eller kund har bokningar
+- `500 Internal Server Error` – Oväntat fel
 
 ### Tester
 
-Projektet inneh?ller enhetstester med **JUnit 5** och **Mockito** f?r:
+Projektet innehåller enhetstester med **JUnit 5** och **Mockito** för:
 
 - `BookingService`
 - `RoomService`
 - `CustomerService`
-- En enkel `PensionatApplicationTests` f?r att teststarta Spring?kontexten
+- En enkel `PensionatApplicationTests` för att teststarta Spring-kontexten
 
-K?r testerna med:
+Kör testerna med:
 
 ```bash
 mvn test
 ```
 
-### H2?konsol
+### Databas
 
-F?r att inspektera databasen under k?rning:
+För att inspektera MySQL-databasen under körning, använd ditt föredragna MySQL-klientverktyg (t.ex. MySQL Workbench, DBeaver, eller kommandoraden):
 
-- G? till `http://localhost:8080/h2-console`
-- JDBC URL: `jdbc:h2:mem:pensionatdb`
-- User: `sa`
-- Password: (tom str?ng)
+```bash
+mysql -u root -p booking_service
+```
+
+### Code-First Approach
+
+Detta projekt använder en code-first metod för API-utveckling:
+
+1. Entiteter och DTO:er definieras först
+2. REST-controllern annoteras med OpenAPI-annoteringar (`@Operation`, `@ApiResponse`, etc.)
+3. SpringDoc genererar automatiskt OpenAPI-specifikation
+4. Swagger UI visualiserar API:et interaktivt
+5. API-klienter kan genereras från OpenAPI-specifikationen
 
