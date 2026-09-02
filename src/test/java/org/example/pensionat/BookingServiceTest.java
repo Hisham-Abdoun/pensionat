@@ -45,7 +45,7 @@ public class BookingServiceTest {
 
         RoomDto room = new RoomDto();
         room.setRoomNumber(200);
-        room.setRoomType(RoomType.SINGLE);
+        room.setRoomType(RoomType.ENKEL);
         room.setExtraBeds(0);
         room.setPricePerNight(500.0);
         roomService.saveRoom(room);

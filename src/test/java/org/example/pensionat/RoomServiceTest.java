@@ -27,7 +27,7 @@ public class RoomServiceTest {
     void saveRoom_works() {
         RoomDto dto = new RoomDto();
         dto.setRoomNumber(300);
-        dto.setRoomType(RoomType.DOUBLE);
+        dto.setRoomType(RoomType.DUBBEL);
         dto.setExtraBeds(1);
         dto.setPricePerNight(800.0);
 
