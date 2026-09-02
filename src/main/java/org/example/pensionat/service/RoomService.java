@@ -97,7 +97,7 @@ public class RoomService {
 
 
     private int getMaxGuests(Room room) {
-        if (room.getRoomType() == RoomType.SINGLE) {
+        if (room.getRoomType() == RoomType.ENKEL) {
             return 1;
         } else {
             return 2 + room.getExtraBeds();
