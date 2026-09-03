@@ -3,6 +3,11 @@ package org.example.pensionat.dto;
 import jakarta.validation.constraints.*;
 import org.example.pensionat.model.RoomType;
 
+/**
+ * DTO för rumshantering.
+ * Här finns API-endpoint:er för att hantera rumshantering.
+ * DENNA BEHÖVS LÄNGRE INTE.
+ */
 public class RoomDto {
 
     private Long id;

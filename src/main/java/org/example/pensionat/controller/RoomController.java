@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controller för rumshantering.
+ * Här finns API-endpoint:er för att hantera rumshantering.
+ */
 @RestController
 @RequestMapping("/api/rooms")
 @Tag(name = "Rooms", description = "API för rumshantering")

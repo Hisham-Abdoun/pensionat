@@ -6,6 +6,8 @@ import io.swagger.v3.oas.models.info.Contact;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+// Detta är för att se våran API dokumentation på http://localhost:8080/swagger-ui/
+// eller http://localhost:8080/v3/api-docs
 @Configuration
 public class OpenApiConfig {
 

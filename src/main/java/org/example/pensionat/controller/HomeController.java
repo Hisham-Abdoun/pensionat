@@ -3,6 +3,10 @@ package org.example.pensionat.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
+/**
+ * Kontrollerar huvudsidan.
+ * Mappar till root-URL "/" och returnerar index
+ */
 @Controller
 public class HomeController {
 

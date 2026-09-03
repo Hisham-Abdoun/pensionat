@@ -1,22 +1,16 @@
 package org.example.pensionat.dto;
 
-import jakarta.validation.constraints.*;
-
+/**
+ * DTO för kunddata.
+ * Används för att deserialisera kunddata från Kundtjänst.
+ * Denna DTO matchar kundtjänstens CustomerDto för att kunna ta emot data via REST.
+ */
 public class CustomerDto {
 
     private Long id;
-
-    @NotBlank(message = "Förnamn krävs")
     private String firstName;
-
-    @NotBlank(message = "Efternamn krävs")
     private String lastName;
-
-    @Email(message = "Ogiltig e-post")
-    @NotBlank(message = "E-post krävs")
     private String email;
-
-    @NotBlank(message = "Telefon krävs")
     private String phoneNumber;
 
     public Long getId() { return id; }

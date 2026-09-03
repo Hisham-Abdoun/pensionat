@@ -1,7 +1,5 @@
 package org.example.pensionat;
 
-import org.example.pensionat.dto.CustomerDto;
-import org.example.pensionat.service.CustomerService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

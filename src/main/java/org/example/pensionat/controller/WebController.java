@@ -1,10 +1,8 @@
 package org.example.pensionat.controller;
 
 import org.example.pensionat.dto.BookingDto;
-import org.example.pensionat.dto.CustomerDto;
 import org.example.pensionat.dto.RoomDto;
 import org.example.pensionat.service.BookingService;
-import org.example.pensionat.service.CustomerService;
 import org.example.pensionat.service.RoomService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,25 +11,25 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
+/**
+ * Controller för webbhantering.
+ * Här finns API-endpoint:er för att hantera bokningar, kunder och rum.
+ */
 @Controller
 public class WebController {
 
     private final BookingService bookingService;
-    private final CustomerService customerService;
     private final RoomService roomService;
 
     public WebController(BookingService bookingService,
-                         CustomerService customerService,
                          RoomService roomService) {
         this.bookingService = bookingService;
-        this.customerService = customerService;
         this.roomService = roomService;
     }
 
     @GetMapping("/bookings")
     public String bookings(Model model) {
         model.addAttribute("bookings", bookingService.getAllBookings());
-        model.addAttribute("customers", customerService.getAllCustomers());
         model.addAttribute("rooms", roomService.getAllRooms());
         model.addAttribute("bookingDto", new BookingDto());
         return "bookings/list";
@@ -40,7 +38,6 @@ public class WebController {
     @GetMapping("/bookings/edit/{id}")
     public String editBooking(@PathVariable Long id, Model model) {
         model.addAttribute("booking", bookingService.getBookingById(id));
-        model.addAttribute("customers", customerService.getAllCustomers());
         model.addAttribute("rooms", roomService.getAllRooms());
         return "bookings/form";
     }
@@ -69,6 +66,7 @@ public class WebController {
         return "bookings/search";
     }
 
+    /*
     @GetMapping("/customers")
     public String customers(Model model) {
         model.addAttribute("customers", customerService.getAllCustomers());
@@ -89,7 +87,9 @@ public class WebController {
         redirectAttributes.addFlashAttribute("success", "Kunden sparades!");
         return "redirect:/customers";
     }
+    */
 
+    /*
     @PostMapping("/customers/delete/{id}")
     public String deleteCustomer(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         boolean deleted = customerService.deleteCustomer(id);
@@ -100,6 +100,7 @@ public class WebController {
         }
         return "redirect:/customers";
     }
+    */
 
     @GetMapping("/rooms")
     public String rooms(Model model) {
