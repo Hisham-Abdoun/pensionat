@@ -34,4 +34,7 @@ public interface BookingRepository
             @Param("endDate") LocalDate endDate,
             @Param("excludeBookingId") Long excludeBookingId
     );
+
+    // Används av kundtjänsten (via REST) för att kontrollera om en kund kan tas bort.
+    boolean existsByCustomerId(Long customerId);
 }

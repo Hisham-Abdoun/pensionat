@@ -2,8 +2,9 @@ package org.example.pensionat.controller;
 
 import jakarta.validation.Valid;
 import org.example.pensionat.dto.BookingDto;
+import org.example.pensionat.exception.CustomerNotFoundException;
+import org.example.pensionat.exception.KundtjanstUnavailableException;
 import org.example.pensionat.service.BookingService;
-import org.example.pensionat.service.CustomerService;
 import org.example.pensionat.service.RoomService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,14 +19,11 @@ import java.time.LocalDate;
 public class BookingController {
 
     private final BookingService bookingService;
-    private final CustomerService customerService;
     private final RoomService roomService;
 
     public BookingController(BookingService bookingService,
-                             CustomerService customerService,
                              RoomService roomService) {
         this.bookingService = bookingService;
-        this.customerService = customerService;
         this.roomService = roomService;
     }
 
@@ -34,7 +32,6 @@ public class BookingController {
     public String listBookings(Model model) {
         model.addAttribute("bookings", bookingService.getAllBookings());
         model.addAttribute("bookingDto", new BookingDto());
-        model.addAttribute("customers", customerService.getAllCustomers());
         model.addAttribute("rooms", roomService.getAllRooms());
         return "bookings/list";
     }
@@ -47,18 +44,24 @@ public class BookingController {
                               Model model) {
         if (result.hasErrors()) {
             model.addAttribute("bookings", bookingService.getAllBookings());
-            model.addAttribute("customers", customerService.getAllCustomers());
             model.addAttribute("rooms", roomService.getAllRooms());
             return "bookings/list";
         }
-        boolean created = bookingService.createBooking(bookingDto);
-        if (created) {
-            redirectAttributes.addFlashAttribute("success",
-                    "Bokning skapad!");
-        } else {
+
+        try {
+            boolean created = bookingService.createBooking(bookingDto);
+            if (created) {
+                redirectAttributes.addFlashAttribute("success", "Bokning skapad!");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Rummet är redan bokat!");
+            }
+        } catch (CustomerNotFoundException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        } catch (KundtjanstUnavailableException ex) {
             redirectAttributes.addFlashAttribute("error",
-                    "Rummet är redan bokat!");
+                    "Vi kunde inte hantera din bokning just nu, försök igen senare.");
         }
+
         return "redirect:/bookings";
     }
 
@@ -66,7 +69,6 @@ public class BookingController {
     @GetMapping("/edit/{id}")
     public String editBooking(@PathVariable Long id, Model model) {
         model.addAttribute("bookingDto", bookingService.getBookingById(id));
-        model.addAttribute("customers", customerService.getAllCustomers());
         model.addAttribute("rooms", roomService.getAllRooms());
         return "bookings/form";
     }
@@ -79,18 +81,24 @@ public class BookingController {
                                 RedirectAttributes redirectAttributes,
                                 Model model) {
         if (result.hasErrors()) {
-            model.addAttribute("customers", customerService.getAllCustomers());
             model.addAttribute("rooms", roomService.getAllRooms());
             return "bookings/form";
         }
-        boolean updated = bookingService.updateBooking(id, bookingDto);
-        if (updated) {
-            redirectAttributes.addFlashAttribute("success",
-                    "Bokning uppdaterad!");
-        } else {
+
+        try {
+            boolean updated = bookingService.updateBooking(id, bookingDto);
+            if (updated) {
+                redirectAttributes.addFlashAttribute("success", "Bokning uppdaterad!");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Rummet är redan bokat!");
+            }
+        } catch (CustomerNotFoundException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        } catch (KundtjanstUnavailableException ex) {
             redirectAttributes.addFlashAttribute("error",
-                    "Rummet är redan bokat!");
+                    "Vi kunde inte hantera din bokning just nu, försök igen senare.");
         }
+
         return "redirect:/bookings";
     }
 
@@ -99,8 +107,7 @@ public class BookingController {
     public String deleteBooking(@PathVariable Long id,
                                 RedirectAttributes redirectAttributes) {
         bookingService.deleteBooking(id);
-        redirectAttributes.addFlashAttribute("success",
-                "Bokning avbokad!");
+        redirectAttributes.addFlashAttribute("success", "Bokning avbokad!");
         return "redirect:/bookings";
     }
 
