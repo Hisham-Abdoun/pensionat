@@ -1,4 +1,4 @@
-## Pensionat – enkelt bokningssystem
+## Pensionat ï¿½ enkelt bokningssystem
 
 Ett litet **Spring Boot 3 / Java 17**-projekt f?r att hantera bokningar p? ett pensionat.  
 Systemet anv?nder **H2 in?memory**-databas, **JPA**, **Thymeleaf** och **Bootstrap**.
@@ -50,13 +50,13 @@ N?r applikationen ?r ig?ng:
 
 ### Viktiga URL:er
 
-- `GET /bookings` – lista bokningar + formul?r f?r ny bokning
-- `GET /bookings/edit/{id}` – redigera bokning
-- `POST /bookings/delete/{id}` – avboka
-- `GET /bookings/search` – s?k efter lediga rum
-- `GET /customers` – lista / skapa kunder
-- `GET /customers/edit/{id}` – redigera kund
-- `GET /rooms` – lista / skapa rum
+- `GET /bookings` ï¿½ lista bokningar + formul?r f?r ny bokning
+- `GET /bookings/edit/{id}` ï¿½ redigera bokning
+- `POST /bookings/delete/{id}` ï¿½ avboka
+- `GET /bookings/search` ï¿½ s?k efter lediga rum
+- `GET /customers` ï¿½ lista / skapa kunder
+- `GET /customers/edit/{id}` ï¿½ redigera kund
+- `GET /rooms` ï¿½ lista / skapa rum
 
 ### Startdata (DataInitializer)
 
@@ -67,7 +67,6 @@ Vid uppstart k?rs `DataInitializer` (i paketet `config`) som:
 - Skapar tre bokningar med olika datum
 
 Detta g?r att du direkt ser data i gr?nssnittet utan att beh?va l?gga in n?got manuellt.
-
 ### Validering
 
 Exempel p? valideringsregler:
@@ -76,7 +75,7 @@ Exempel p? valideringsregler:
   - `startDate` / `endDate` ?r obligatoriska
   - `numberOfGuests >= 1`
   - Metoden `isDateRangeValid()` (annoterad med `@AssertTrue`) kr?ver att **slutdatum ?r efter startdatum**  
-    – felmeddelandet visas b?de vid ny bokning och vid ?ndring.
+    ï¿½ felmeddelandet visas b?de vid ny bokning och vid ?ndring.
 - Entiteterna (`Customer`, `Room`, `Booking`) har motsvarande valideringsannoteringar.
 
 Valideringsfel visas:
