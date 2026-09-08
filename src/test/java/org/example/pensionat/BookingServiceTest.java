@@ -1,11 +1,9 @@
 package org.example.pensionat;
 
 import org.example.pensionat.dto.BookingDto;
-import org.example.pensionat.dto.CustomerDto;
 import org.example.pensionat.dto.RoomDto;
 import org.example.pensionat.model.RoomType;
 import org.example.pensionat.service.BookingService;
-import org.example.pensionat.service.CustomerService;
 import org.example.pensionat.service.RoomService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +21,6 @@ public class BookingServiceTest {
     private BookingService bookingService;
 
     @Autowired
-    private CustomerService customerService;
-
-    @Autowired
     private RoomService roomService;
 
     @Test
@@ -36,13 +31,6 @@ public class BookingServiceTest {
 
     @Test
     void createBooking_works() {
-        CustomerDto customer = new CustomerDto();
-        customer.setFirstName("Test");
-        customer.setLastName("Person");
-        customer.setEmail("booking@test.com");
-        customer.setPhoneNumber("0701234567");
-        customerService.saveCustomer(customer);
-
         RoomDto room = new RoomDto();
         room.setRoomNumber(200);
         room.setRoomType(RoomType.SINGLE);
@@ -50,14 +38,13 @@ public class BookingServiceTest {
         room.setPricePerNight(500.0);
         roomService.saveRoom(room);
 
-        List<CustomerDto> customers = customerService.getAllCustomers();
         List<RoomDto> rooms = roomService.getAllRooms();
 
         BookingDto dto = new BookingDto();
         dto.setStartDate(LocalDate.of(2026, 7, 1));
         dto.setEndDate(LocalDate.of(2026, 7, 5));
         dto.setNumberOfGuests(1);
-        dto.setCustomerId(customers.get(0).getId());
+        dto.setCustomerId(1L);
         dto.setRoomId(rooms.get(0).getId());
 
         boolean result = bookingService.createBooking(dto);

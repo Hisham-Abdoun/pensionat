@@ -12,7 +12,6 @@
     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
     <h1>Bokningar</h1>
-    <a href="/customers" class="btn btn-secondary">Kunder</a>
     <a href="/rooms" class="btn btn-secondary">Rum</a>
     <a href="/bookings/search" class="btn btn-primary">Sök lediga rum</a>
     <hr>
@@ -20,7 +19,7 @@
     <table class="table table-bordered">
         <thead class="table-dark">
         <tr>
-            <th>Kund</th>
+            <th>Kund-id</th>
             <th>Rum</th>
             <th>Startdatum</th>
             <th>Slutdatum</th>
@@ -30,7 +29,7 @@
         </thead>
         <tbody>
         <tr th:each="booking : ${bookings}">
-            <td th:text="${booking.customerName}"></td>
+            <td th:text="${booking.customerId}"></td>
             <td th:text="${booking.roomNumber}"></td>
             <td th:text="${booking.startDate}"></td>
             <td th:text="${booking.endDate}"></td>
@@ -51,14 +50,9 @@
     <h3>Ny bokning</h3>
     <form th:action="@{/bookings/save}" th:object="${bookingDto}" method="post">
         <div class="mb-2">
-            <label>Kund</label>
-            <select th:field="*{customerId}" class="form-control">
-                <option value="">-- Välj kund --</option>
-                <option th:each="customer : ${customers}"
-                        th:value="${customer.id}"
-                        th:text="${customer.firstName} + ' ' + ${customer.lastName}">
-                </option>
-            </select>
+            <label>Kund-id</label>
+            <input type="number" th:field="*{customerId}"
+                   class="form-control" placeholder="Ange kundens id" min="1">
             <span th:if="${#fields.hasErrors('customerId')}"
                   th:errors="*{customerId}" class="text-danger"></span>
         </div>

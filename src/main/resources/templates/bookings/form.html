@@ -17,13 +17,9 @@
     <form th:action="@{/bookings/update/{id}(id=${bookingDto.id})}"
           th:object="${bookingDto}" method="post">
         <div class="mb-2">
-            <label>Kund</label>
-            <select th:field="*{customerId}" class="form-control">
-                <option th:each="customer : ${customers}"
-                        th:value="${customer.id}"
-                        th:text="${customer.firstName} + ' ' + ${customer.lastName}">
-                </option>
-            </select>
+            <label>Kund-id</label>
+            <input type="number" th:field="*{customerId}"
+                   class="form-control" min="1">
             <span th:if="${#fields.hasErrors('customerId')}"
                   th:errors="*{customerId}" class="text-danger"></span>
         </div>
