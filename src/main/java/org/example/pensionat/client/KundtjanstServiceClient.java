@@ -32,10 +32,14 @@ public class KundtjanstServiceClient {
 
             return true; // 200 OK → kunden finns
 
-        } catch (HttpClientErrorException.NotFound e) {
+        }
+        catch (HttpClientErrorException.NotFound e)
+        {
             return false; // 404 → kunden finns inte
 
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             throw new RuntimeException("Kundtjänsten är inte tillgänglig");
         }
     }
@@ -52,6 +56,21 @@ public class KundtjanstServiceClient {
 
         } catch (HttpClientErrorException.NotFound e) {
             throw new RuntimeException("Kunden finns inte");
+
+        } catch (Exception e) {
+            throw new RuntimeException("Kundtjänsten är inte tillgänglig");
+        }
+    }
+
+    /**
+     * Hämta alla kunder från Kundtjänst
+     */
+    public CustomerDto[] getAllCustomers() {
+        try {
+            return restClient.get()
+                    .uri(customerServiceUrl + "/api/customers")
+                    .retrieve()
+                    .body(CustomerDto[].class);
 
         } catch (Exception e) {
             throw new RuntimeException("Kundtjänsten är inte tillgänglig");

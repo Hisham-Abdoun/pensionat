@@ -87,8 +87,8 @@ public class BookingServiceTest {
 
         // Skapa en dubbelbokning
         BookingDto dto2 = new BookingDto();
-        dto2.setStartDate(LocalDate.of(2026, 9, 10));
-        dto2.setEndDate(LocalDate.of(2026, 9, 15));
+        dto2.setStartDate(LocalDate.of(2026, 9, 11));
+        dto2.setEndDate(LocalDate.of(2026, 9, 16));
         dto2.setNumberOfGuests(1);
         dto2.setCustomerId(customerId);
         dto2.setRoomId(roomId);

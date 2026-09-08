@@ -1,6 +1,8 @@
 package org.example.pensionat.controller;
 
+import org.example.pensionat.client.KundtjanstServiceClient;
 import org.example.pensionat.dto.BookingDto;
+import org.example.pensionat.dto.CustomerDto;
 import org.example.pensionat.dto.RoomDto;
 import org.example.pensionat.service.BookingService;
 import org.example.pensionat.service.RoomService;
@@ -20,11 +22,14 @@ public class WebController {
 
     private final BookingService bookingService;
     private final RoomService roomService;
+    private final KundtjanstServiceClient kundtjanstServiceClient;
 
     public WebController(BookingService bookingService,
-                         RoomService roomService) {
+                         RoomService roomService,
+                         KundtjanstServiceClient kundtjanstServiceClient) {
         this.bookingService = bookingService;
         this.roomService = roomService;
+        this.kundtjanstServiceClient = kundtjanstServiceClient;
     }
 
     @GetMapping("/bookings")
@@ -66,41 +71,11 @@ public class WebController {
         return "bookings/search";
     }
 
-    /*
     @GetMapping("/customers")
     public String customers(Model model) {
-        model.addAttribute("customers", customerService.getAllCustomers());
-        model.addAttribute("customerDto", new CustomerDto());
+        model.addAttribute("customers", kundtjanstServiceClient.getAllCustomers());
         return "customers/list";
     }
-
-    @GetMapping("/customers/edit/{id}")
-    public String editCustomer(@PathVariable Long id, Model model) {
-        model.addAttribute("customer", customerService.getCustomerById(id));
-        return "customers/form";
-    }
-
-    @PostMapping("/customers/save")
-    public String saveCustomer(@ModelAttribute CustomerDto customerDto,
-                               RedirectAttributes redirectAttributes) {
-        customerService.saveCustomer(customerDto);
-        redirectAttributes.addFlashAttribute("success", "Kunden sparades!");
-        return "redirect:/customers";
-    }
-    */
-
-    /*
-    @PostMapping("/customers/delete/{id}")
-    public String deleteCustomer(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        boolean deleted = customerService.deleteCustomer(id);
-        if (deleted) {
-            redirectAttributes.addFlashAttribute("success", "Kunden togs bort!");
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Kan inte ta bort kund med bokningar!");
-        }
-        return "redirect:/customers";
-    }
-    */
 
     @GetMapping("/rooms")
     public String rooms(Model model) {
