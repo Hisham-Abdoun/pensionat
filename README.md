@@ -97,6 +97,44 @@ När containers är igång:
 docker-compose down
 ```
 
+#### Alternativ 2b: Kör tillsammans med Kundtjänst (Docker Network)
+
+För att köra denna service tillsammans med kundtjänst på samma Docker-nätverk:
+
+**Skapa nätverket (en gång):**
+
+```bash
+docker network create app-network
+```
+
+**Starta pensionat-tjänsten:**
+
+```bash
+cd C:\Programmering\uppgift\pensionat
+docker-compose up --build
+```
+
+**Starta kundtjänsten:**
+
+```bash
+cd C:\Programmering\uppgift\kundtjanst
+docker-compose up --build
+```
+
+Båda tjänsterna kommunicerar via `app-network` där:
+- `booking-service` når kundtjänsten via `http://kundtjanst-service:8081`
+- Båda använder sina egna MySQL-containers på samma nätverk
+
+**Stoppa alla tjänster:**
+
+```bash
+# I varje projektkatalog
+docker-compose down
+
+# Ta bort nätverket (valfritt)
+docker network rm app-network
+```
+
 #### Alternativ 3: Kubernetes
 
 Krav:
