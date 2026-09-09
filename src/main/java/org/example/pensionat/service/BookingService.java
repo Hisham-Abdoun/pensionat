@@ -1,11 +1,10 @@
 package org.example.pensionat.service;
 
+import org.example.pensionat.client.CustomerClient;
 import org.example.pensionat.dto.BookingDto;
 import org.example.pensionat.model.Booking;
-import org.example.pensionat.model.Customer;
 import org.example.pensionat.model.Room;
 import org.example.pensionat.repository.BookingRepository;
-import org.example.pensionat.repository.CustomerRepository;
 import org.example.pensionat.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +15,15 @@ import java.util.stream.Collectors;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
-    private final CustomerRepository customerRepository;
     private final RoomRepository roomRepository;
+    private final CustomerClient customerClient;
 
     public BookingService(BookingRepository bookingRepository,
-                          CustomerRepository customerRepository,
-                          RoomRepository roomRepository) {
+                          RoomRepository roomRepository,
+                          CustomerClient customerClient) {
         this.bookingRepository = bookingRepository;
-        this.customerRepository = customerRepository;
         this.roomRepository = roomRepository;
+        this.customerClient = customerClient;
     }
 
     // Konvertera Entity → DTO
@@ -34,9 +33,7 @@ public class BookingService {
         dto.setStartDate(booking.getStartDate());
         dto.setEndDate(booking.getEndDate());
         dto.setNumberOfGuests(booking.getNumberOfGuests());
-        dto.setCustomerId(booking.getCustomer().getId());
-        dto.setCustomerName(booking.getCustomer().getFirstName()
-                + " " + booking.getCustomer().getLastName());
+        dto.setCustomerId(booking.getCustomerId());
         dto.setRoomId(booking.getRoom().getId());
         dto.setRoomNumber(booking.getRoom().getRoomNumber());
         return dto;
@@ -59,6 +56,10 @@ public class BookingService {
 
     // Skapa ny bokning
     public boolean createBooking(BookingDto dto) {
+        // Fråga kundtjänsten om kunden verkligen finns innan bokningen skapas.
+        // Kastar CustomerNotFoundException eller KundtjanstUnavailableException vid problem.
+        customerClient.verifyCustomerExists(dto.getCustomerId());
+
         Room room = roomRepository.findById(dto.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Rum hittades inte"));
 
@@ -69,14 +70,11 @@ public class BookingService {
             return false; // Rummet är bokat
         }
 
-        Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Kund hittades inte"));
-
         Booking booking = new Booking();
         booking.setStartDate(dto.getStartDate());
         booking.setEndDate(dto.getEndDate());
         booking.setNumberOfGuests(dto.getNumberOfGuests());
-        booking.setCustomer(customer);
+        booking.setCustomerId(dto.getCustomerId());
         booking.setRoom(room);
 
         bookingRepository.save(booking);
@@ -85,6 +83,9 @@ public class BookingService {
 
     // Redigera bokning
     public boolean updateBooking(Long id, BookingDto dto) {
+        // Fråga kundtjänsten om kunden verkligen finns innan bokningen uppdateras.
+        customerClient.verifyCustomerExists(dto.getCustomerId());
+
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bokning hittades inte"));
 
@@ -102,6 +103,7 @@ public class BookingService {
         booking.setStartDate(dto.getStartDate());
         booking.setEndDate(dto.getEndDate());
         booking.setNumberOfGuests(dto.getNumberOfGuests());
+        booking.setCustomerId(dto.getCustomerId());
         booking.setRoom(room);
 
         bookingRepository.save(booking);

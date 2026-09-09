@@ -1,110 +1,45 @@
-## Pensionat � enkelt bokningssystem
+## Pensionat & Kundtjänst – Microservices System
 
-Ett litet **Spring Boot 3 / Java 17**-projekt f?r att hantera bokningar p? ett pensionat.  
-Systemet anv?nder **H2 in?memory**-databas, **JPA**, **Thymeleaf** och **Bootstrap**.
+Detta projekt är en vidareutveckling av pensionatssystemet från Backend 1. Applikationen har delats upp från en monolit till en microservice-arkitektur bestående av två fristående Spring Boot-tjänster som kommunicerar via REST.
 
-### Funktioner
 
-- **Kunder**
-  - Skapa, lista, uppdatera och ta bort kunder
-  - Kan inte radera kund som har bokningar
-- **Rum**
-  - Skapa och lista rum (`SINGLE` / `DOUBLE`, extras?ngar, pris per natt)
-  - En metod f?r att s?ka lediga rum givet datum och antal g?ster
-- **Bokningar**
-  - Skapa, lista, uppdatera och avboka bokningar
-  - Kontroll mot **dubbelbokning** av samma rum (datum?verlappar inte)
-  - Validering att **slutdatum ?r efter startdatum**
-  - Validering av obligatoriska f?lt och minsta antal g?ster
-- **Startdata (Code First)**
-  - En `CommandLineRunner`-bean (`DataInitializer`) skapar n?gra kunder, rum och bokningar vid uppstart
 
-### Teknik
+## Tjänstebeskrivning
 
-- **Spr?k:** Java 17  
-- **Bygg:** Maven  
-- **Ramverk:** Spring Boot 3.5  
-- **Databas:** H2 in?memory (ingen extern databas beh?vs)  
-- **Vy:** Thymeleaf + Bootstrap  
+# 1. Bokningstjänsten (Pensionat)
+- Beskrivning: Ansvarar för hantering av rum och bokningar samt innehåller systemets frontend (Thymeleaf + Bootstrap).
+- Ändring från Backend 1: Customer-entiteten och kundtabellen har tagits bort helt från denna databas. Bokningar sparar nu endast `kundId`.
+- Databas: Egen dedikerad databas.
 
-### Komma ig?ng
+# 2. Kundtjänsten
+- Beskrivning: En helt ny och fristående Spring Boot-applikation som ansvarar för ALL kundhantering (CRUD).
+- Databas: Egen dedikerad databas (Ej H2/SQLite).
 
-Krav:
 
-- Java 17 installerat
-- Maven (om du inte anv?nder IDE:ns inbyggda st?d)
 
-Klona projektet och k?r:
+## Kommunikation mellan tjänsterna (REST API)
 
-```bash
-mvn spring-boot:run
-```
+Tjänsterna kommunicerar synkront via REST-anrop med JSON-format:
 
-eller i en IDE (t.ex. IntelliJ / VS Code / Eclipse):
+1. Vid ny bokning: Bokningstjänsten anropar Kundtjänsten (`GET /kunder/{id}`) för att verifiera att kunden existerar innan bokningen skapas.
+2. Vid borttagning av kund: Kundtjänsten anropar Bokningstjänsten för att kontrollera om kunden har aktiva bokningar. Om aktiva bokningar finns avbryts borttagningen.
+3. Feltolerans: Om den andra tjänsten är nere kraschar inte systemet, utan återkopplar med ett tydligt felmeddelande till användaren.
 
-- K?r `org.example.pensionat.PensionatApplication` som en Spring Boot?applikation.
 
-N?r applikationen ?r ig?ng:
 
-- G? till `http://localhost:8080/bookings` i webbl?saren.
+## HTTP-statuskoder
 
-### Viktiga URL:er
+- `200 OK` – Förfrågan lyckades
+- `201 Created` – Resurs skapad
+- `400 Bad Request` – Valideringsfel / Felaktig inmatning
+- `404 Not Found` – Kund eller rum hittades inte
+- `409 Conflict` – Dubbelbokning eller försök att radera kund med aktiva bokningar
 
-- `GET /bookings` � lista bokningar + formul?r f?r ny bokning
-- `GET /bookings/edit/{id}` � redigera bokning
-- `POST /bookings/delete/{id}` � avboka
-- `GET /bookings/search` � s?k efter lediga rum
-- `GET /customers` � lista / skapa kunder
-- `GET /customers/edit/{id}` � redigera kund
-- `GET /rooms` � lista / skapa rum
 
-### Startdata (DataInitializer)
 
-Vid uppstart k?rs `DataInitializer` (i paketet `config`) som:
+## Hur man startar hela systemet (Docker Compose)
 
-- Skapar tre exempel?kunder
-- Skapar fyra rum (single/double, med/utan extras?ng)
-- Skapar tre bokningar med olika datum
-
-Detta g?r att du direkt ser data i gr?nssnittet utan att beh?va l?gga in n?got manuellt.
-
-### Validering
-
-Exempel p? valideringsregler:
-
-- `BookingDto`
-  - `startDate` / `endDate` ?r obligatoriska
-  - `numberOfGuests >= 1`
-  - Metoden `isDateRangeValid()` (annoterad med `@AssertTrue`) kr?ver att **slutdatum ?r efter startdatum**  
-    � felmeddelandet visas b?de vid ny bokning och vid ?ndring.
-- Entiteterna (`Customer`, `Room`, `Booking`) har motsvarande valideringsannoteringar.
-
-Valideringsfel visas:
-
-- Som r?da texter under respektive f?lt i formul?ren
-- Som en r?d alert ?verst p? sidan f?r vissa fel (t.ex. dubbelbokning av rum)
-
-### Tester
-
-Projektet inneh?ller enhetstester med **JUnit 5** och **Mockito** f?r:
-
-- `BookingService`
-- `RoomService`
-- `CustomerService`
-- En enkel `PensionatApplicationTests` f?r att teststarta Spring?kontexten
-
-K?r testerna med:
+Hela systemet startas via Docker Compose med ett enda kommando:
 
 ```bash
-mvn test
-```
-
-### H2?konsol
-
-F?r att inspektera databasen under k?rning:
-
-- G? till `http://localhost:8080/h2-console`
-- JDBC URL: `jdbc:h2:mem:pensionatdb`
-- User: `sa`
-- Password: (tom str?ng)
-
+docker compose up --build
