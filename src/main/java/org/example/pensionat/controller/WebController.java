@@ -72,9 +72,14 @@ public class WebController {
     }
 
     @GetMapping("/customers")
-    public String customers(Model model) {
-        model.addAttribute("customers", kundtjanstServiceClient.getAllCustomers());
-        return "customers/list";
+    public String customers(Model model, RedirectAttributes redirectAttributes) {
+        try {
+            model.addAttribute("customers", kundtjanstServiceClient.getAllCustomers());
+            return "customers/list";
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", "Kundtjänsten är inte tillgänglig");
+            return "redirect:/";
+        }
     }
 
     @GetMapping("/rooms")
