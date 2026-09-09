@@ -1,0 +1,46 @@
+version: "3.8"
+services:
+  kundtjanst-db:
+    image: postgres:16
+    container_name: kundtjanst-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kundtjanstdb
+      POSTGRES_USER: kundtjanst
+      POSTGRES_PASSWORD: kundtjanst
+    volumes:
+      - kundtjanst-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kundtjanst -d kundtjanstdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  kundtjanst:
+    build:
+      context: https://github.com/Hisham-Abdoun/kundtjanst.git#main
+    container_name: kundtjanst
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      DB_URL: jdbc:postgresql://kundtjanst-db:5432/kundtjanstdb
+      DB_USERNAME: kundtjanst
+      DB_PASSWORD: kundtjanst
+      PENSIONAT_URL: http://pensionat:8080/api/bookings
+    depends_on:
+      kundtjanst-db:
+        condition: service_healthy
+  pensionat:
+    build:
+      context: https://github.com/Hisham-Abdoun/pensionat.git#main
+    container_name: pensionat
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      KUNDTJANST_URL: http://kundtjanst:8081/api/customers
+    depends_on:
+      - kundtjanst
+volumes:
+  kundtjanst-data:
+
