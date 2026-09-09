@@ -81,7 +81,7 @@ public class WebController {
     public String rooms(Model model) {
         model.addAttribute("rooms", roomService.getAllRooms());
         model.addAttribute("roomDto", new RoomDto());
-        model.addAttribute("roomTypes", List.of("SINGLE", "DOUBLE", "SUITE"));
+        model.addAttribute("roomTypes", List.of("ENKEL", "DUBBEL"));
         return "rooms/list";
     }
 
