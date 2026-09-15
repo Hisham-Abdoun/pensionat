@@ -37,6 +37,11 @@ public class WebController {
         model.addAttribute("bookings", bookingService.getAllBookings());
         model.addAttribute("rooms", roomService.getAllRooms());
         model.addAttribute("bookingDto", new BookingDto());
+        try {
+            model.addAttribute("customers", kundtjanstServiceClient.getAllCustomers());
+        } catch (RuntimeException e) {
+            model.addAttribute("customers", new CustomerDto[0]);
+        }
         return "bookings/list";
     }
 
