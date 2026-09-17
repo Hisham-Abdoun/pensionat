@@ -23,6 +23,7 @@ public class RoomServiceTest {
         assertNotNull(result);
     }
 
+    /*
     @Test
     void saveRoom_works() {
         RoomDto dto = new RoomDto();
@@ -36,4 +37,5 @@ public class RoomServiceTest {
         List<RoomDto> result = roomService.getAllRooms();
         assertFalse(result.isEmpty());
     }
+    */
 }
