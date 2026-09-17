@@ -14,30 +14,29 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class RoomServiceTest {
 
-    // @Autowired
-    // private RoomService roomService;
+    @Autowired
+    private RoomService roomService;
 
-    /*
+
     @Test
     void getAllRooms_returnsList() {
         List<RoomDto> result = roomService.getAllRooms();
         assertNotNull(result);
     }
-    */
 
-    /*
+
+
     @Test
     void saveRoom_works() {
         RoomDto dto = new RoomDto();
-        dto.setRoomNumber(300);
-        dto.setRoomType(RoomType.DUBBEL);
+        dto.setRoomNumber(301);
+        dto.setRoomType(RoomType.ENKEL);
         dto.setExtraBeds(1);
-        dto.setPricePerNight(800.0);
+        dto.setPricePerNight(900.0);
 
         roomService.saveRoom(dto);
 
         List<RoomDto> result = roomService.getAllRooms();
         assertFalse(result.isEmpty());
     }
-    */
 }
