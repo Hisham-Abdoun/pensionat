@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class KundtjanstServiceClientTest {
 
-    @Autowired
-    private KundtjanstServiceClient kundtjanstServiceClient;
+    // @Autowired
+    // private KundtjanstServiceClient kundtjanstServiceClient;
 
     /*
     @Test
