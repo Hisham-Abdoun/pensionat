@@ -4,7 +4,6 @@ En **Spring Boot 3 / Java 17**-mikroservice som tillhandahåller ett REST API f�
 Systemet använder **MySQL**-databas, **JPA**, och **SpringDoc OpenAPI** för code-first API-dokumentation.
 
 Denna service är designad för att användas av andra mikrotjänster (t.ex. customer-service) via REST API.
-Ny uppdatering
 ### Funktioner
 
 - **Bokningar**
@@ -264,3 +263,4 @@ Detta projekt använder en code-first metod för API-utveckling:
 4. Swagger UI visualiserar API:et interaktivt
 5. API-klienter kan genereras från OpenAPI-specifikationen
 
+Loggning med LOG, WARN och ERROR inlagda nu
