@@ -82,7 +82,7 @@ public class KundtjanstServiceClient {
                     .uri(customerServiceUrl + "/api/customers")
                     .retrieve()
                     .body(CustomerDto[].class);
-            log.info("Hämtade {} kunder från Kundtjänst", customers.length);
+            log.info("Hämtade {} kunder från Kundtjänst", customers == null ? 0 : customers.length);
             return customers;
 
         } catch (Exception e) {
