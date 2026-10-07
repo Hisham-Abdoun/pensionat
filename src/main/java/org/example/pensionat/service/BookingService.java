@@ -7,6 +7,8 @@ import org.example.pensionat.model.Booking;
 import org.example.pensionat.model.Room;
 import org.example.pensionat.repository.BookingRepository;
 import org.example.pensionat.repository.RoomRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +16,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
+
+    private static final Logger log = LoggerFactory.getLogger(BookingService.class);
 
     private final BookingRepository bookingRepository;
     private final RoomRepository roomRepository;
@@ -41,6 +45,7 @@ public class BookingService {
             CustomerDto customer = kundtjanstServiceClient.getCustomerById(booking.getCustomerId());
             dto.setCustomerName(customer.getFirstName() + " " + customer.getLastName());
         } catch (Exception e) {
+            log.warn("Kund {} ej tillgänglig vid konvertering till DTO", booking.getCustomerId());
             dto.setCustomerName("Kund ej tillgänglig");
         }
 
@@ -61,6 +66,7 @@ public class BookingService {
     public BookingDto getBookingById(Long id) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bokning hittades inte"));
+        log.info("Hämtade bokning {}", id);
         return toDto(booking);
     }
 
@@ -68,6 +74,7 @@ public class BookingService {
     public boolean createBooking(BookingDto dto) {
         // Kontrollera att kunden finns i Kundtjänst
         if (!kundtjanstServiceClient.customerExists(dto.getCustomerId())) {
+            log.error("Kund {} finns inte i Kundtjänst, kan inte skapa bokning", dto.getCustomerId());
             throw new RuntimeException("Kund hittades inte i Kundtjänst");
         }
 
@@ -78,6 +85,7 @@ public class BookingService {
         List<Booking> conflicts = bookingRepository
                 .findConflictingBookings(room, dto.getStartDate(), dto.getEndDate());
         if (!conflicts.isEmpty()) {
+            log.warn("Rum {} är redan bokat för perioden {} till {}", dto.getRoomId(), dto.getStartDate(), dto.getEndDate());
             return false; // Rummet är bokat
         }
 
@@ -89,6 +97,8 @@ public class BookingService {
         booking.setRoom(room);
 
         bookingRepository.save(booking);
+        log.info("Bokning skapad för rum {} från {} till {} med {} gäster för kund {}", 
+                dto.getRoomId(), dto.getStartDate(), dto.getEndDate(), dto.getNumberOfGuests(), dto.getCustomerId());
         return true; // Bokningen genomförd
     }
 
@@ -99,6 +109,7 @@ public class BookingService {
 
         // Kontrollera att kunden finns i Kundtjänst
         if (!kundtjanstServiceClient.customerExists(dto.getCustomerId())) {
+            log.error("Kund {} finns inte i Kundtjänst, kan inte uppdatera bokning {}", dto.getCustomerId(), id);
             throw new RuntimeException("Kund hittades inte i Kundtjänst");
         }
 
@@ -110,6 +121,8 @@ public class BookingService {
                 .findConflictingBookings(room, dto.getStartDate(), dto.getEndDate());
         conflicts.remove(booking);
         if (!conflicts.isEmpty()) {
+            log.warn("Rum {} är redan bokat för perioden {} till {} vid uppdatering av bokning {}", 
+                    dto.getRoomId(), dto.getStartDate(), dto.getEndDate(), id);
             return false;
         }
 
@@ -120,11 +133,14 @@ public class BookingService {
         booking.setRoom(room);
 
         bookingRepository.save(booking);
+        log.info("Bokning {} uppdaterad för rum {} från {} till {} med {} gäster för kund {}", 
+                id, dto.getRoomId(), dto.getStartDate(), dto.getEndDate(), dto.getNumberOfGuests(), dto.getCustomerId());
         return true;
     }
 
     // Avboka bokning
     public void deleteBooking(Long id) {
         bookingRepository.deleteById(id);
+        log.info("Bokning {} avbokad", id);
     }
 }

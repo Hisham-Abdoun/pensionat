@@ -5,6 +5,8 @@ import org.example.pensionat.model.Room;
 import org.example.pensionat.model.RoomType;
 import org.example.pensionat.repository.BookingRepository;
 import org.example.pensionat.repository.RoomRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -13,6 +15,8 @@ import java.util.List;
 
 @Service
 public class RoomService {
+
+    private static final Logger log = LoggerFactory.getLogger(RoomService.class);
 
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
@@ -59,13 +63,15 @@ public class RoomService {
     public RoomDto getRoomById(Long id) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Room not found"));
-
+        log.info("Hämtade rum {}", id);
         return toDto(room);
     }
 
 
     public void saveRoom(RoomDto dto) {
-        roomRepository.save(toEntity(dto));
+        Room room = toEntity(dto);
+        roomRepository.save(room);
+        log.info("Rum {} ({}) sparat", room.getRoomNumber(), room.getRoomType());
     }
 
 
@@ -92,6 +98,8 @@ public class RoomService {
             }
         }
 
+        log.info("Hittade {} tillgängliga rum för perioden {} till {} med {} gäster", 
+                available.size(), startDate, endDate, numberOfGuests);
         return available;
     }
 

@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.example.pensionat.dto.RoomDto;
 import org.example.pensionat.service.RoomService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -24,6 +26,8 @@ import java.util.List;
 @Tag(name = "Rooms", description = "API för rumshantering")
 public class RoomController {
 
+    private static final Logger log = LoggerFactory.getLogger(RoomController.class);
+
     private final RoomService roomService;
 
     public RoomController(RoomService roomService) {
@@ -34,6 +38,7 @@ public class RoomController {
     @Operation(summary = "Hämta alla rum")
     @ApiResponse(responseCode = "200", description = "Lista med alla rum")
     public ResponseEntity<List<RoomDto>> getAllRooms() {
+        log.info("GET /api/rooms - Hämtar alla rum");
         return ResponseEntity.ok(roomService.getAllRooms());
     }
 
@@ -45,6 +50,7 @@ public class RoomController {
     })
     public ResponseEntity<RoomDto> getRoomById(
             @Parameter(description = "Rum-ID") @PathVariable Long id) {
+        log.info("GET /api/rooms/{} - Hämtar rum", id);
         return ResponseEntity.ok(roomService.getRoomById(id));
     }
 
@@ -56,10 +62,12 @@ public class RoomController {
     })
     public ResponseEntity<?> createRoom(@Valid @RequestBody RoomDto roomDto,
                                         BindingResult result) {
+        log.info("POST /api/rooms - Skapar rum {}", roomDto.getRoomNumber());
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(result.getAllErrors());
         }
         roomService.saveRoom(roomDto);
+        log.info("Rum {} skapat framgångsrikt", roomDto.getRoomNumber());
         return ResponseEntity.status(HttpStatus.CREATED).body("Rummet sparades!");
     }
 }
