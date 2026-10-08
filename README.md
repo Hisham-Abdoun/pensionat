@@ -1,4 +1,5 @@
-# Pensionat Service - Workflow & Documentation
+# Pensionat Service
+
 ## Booking Service – REST API Mikroservice
 
 En **Spring Boot 3 / Java 17**-mikroservice som tillhandahåller ett REST API för bokningshantering.  
