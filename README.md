@@ -266,3 +266,24 @@ Detta projekt använder en code-first metod för API-utveckling:
 5. API-klienter kan genereras från OpenAPI-specifikationen
 
 Loggning med LOG, WARN och ERROR inlagda nu
+
+
+## Observerbarhet
+
+### Loggning
+Tjänsten loggar med SLF4J (Logback) och loggarna syns i Render under **Logs**.
+
+| Nivå | Används när | Exempel |
+|---|---|---|
+| `INFO` | Normala händelser vi vill kunna följa | Bokning skapad, kunddata hämtad |
+| `WARN` | Något oväntat men tjänsten fungerar | Kund hittades inte (404), rummet redan bokat, Kundtjänst svarar inte på health check |
+| `ERROR` | Ett fel som gör att anropet misslyckas | Kundtjänsten är inte tillgänglig |
+
+Vi loggar **aldrig** lösenord, tokens eller personuppgifter (namn, e-post, telefon). Vi loggar bara ID:n (t.ex. kund-ID, rum-ID) och datum.
+
+### Health check
+- `GET /actuator/health` visar tjänstens status. Render använder den som **Health Check Path**. Om den inte svarar 200 startar Render om tjänsten och en ny deploy går inte live.
+- `components.db` visar att databasen fungerar.
+- `components.kundtjanst` kommer från vår egen `KundtjanstHealthIndicator`. Den anropar Kundtjänsten (som vi är beroende av) med korta timeouts.
+  - Kundtjänst svarar: `UP` (med svarstid i ms).
+  - Kundtjänst nere: `DEGRADED`. Totalstatus är fortfarande `UP` (HTTP 200), eftersom rum och bokningar fungerar ändå. Vi vill inte att Render startar om vår tjänst för att ett *annat* system är nere.
